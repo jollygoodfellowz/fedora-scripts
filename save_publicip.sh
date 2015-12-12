@@ -1,2 +1,2 @@
 #!/bin/bash
-~/scripts/getpublicip.sh &
+~/scripts/getpublicip.sh > /dev/null &
