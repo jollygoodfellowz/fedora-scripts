@@ -1,0 +1,9 @@
+#!/bin/bash
+PROCESS=$1
+
+if [ -z "$PROCESS" ]; then
+	echo "No process provided"
+	exit;
+fi
+
+ps -e | grep -i $1

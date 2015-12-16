@@ -1,0 +1,55 @@
+#!/bin/bash
+process=$1
+yes=$2
+
+if [ -z "$process" ]; then
+	echo "No process provided"
+	exit;
+fi
+
+full_list=$(ps -e | grep -i $1)
+list=$(ps -e | grep -i $1 | grep -oh "^[0-9]\S*")
+
+# Find out how many processes matched the argument passed in
+count=0
+for proc in $list; do
+	((count+=1))
+done
+
+# If we found no matches let them know and exit
+if (( $count == 0 )); then
+	echo "No matching process found"
+	exit
+fi
+
+if (( $count > 1 )); then
+
+	# If the number of matches is greater than zero we want to warn the user
+	if [ "$yes" != '-y' ]; then
+		echo "Warning found multiple processes matching $process"
+		echo "Here is the list of matching processes"
+		echo "$full_list"
+	fi
+
+	for proc in $list; do
+		if [[ $proc =~ [0-9] ]]; then
+			# if the user passed in -y we assume they know what they are doing
+			if [ "$yes" == '-y' ]; then
+				kill -9 "$proc"
+			# Otherwise keep asking them. They can refer to the list we showed.
+			else
+				#Prompt the user for y or Y 
+				read -p "Are you sure? Enter Y or y for yes " -n 1 -r
+				echo
+				if [[ $REPLY =~ ^[Yy]$ ]]; then
+					echo "killing process id $proc" 
+					kill -9 "$proc"
+				fi
+			fi
+		fi
+	done
+
+# If its just one process then kill it.
+else
+	kill -9 "$list"
+fi
